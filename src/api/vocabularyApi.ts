@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { VocabularyItem, VocabularyResponse } from '../types/vocabulary';
 
+
 /* 獲取API基礎URL */
 const getApiBaseUrl = () => {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3700';
@@ -22,9 +23,17 @@ export const fetchVocabulary = async (): Promise<VocabularyItem[]> => {
   }
 };
 /* 新增筆記 */
-export const addNote = async (word: VocabularyItem): Promise<void> => {
+export const addNote = async (word: VocabularyItem): Promise<{ success: boolean; message: string }> => {
   const apiBaseUrl = getApiBaseUrl();
-  await axios.post(`${apiBaseUrl}/api/addNote`, word);
+  try {
+    await axios.post(`${apiBaseUrl}/api/addNote`, word);
+    return { success: true, message: '加入筆記成功' };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      return { success: false, message: '已加入過筆記' };
+    }
+    throw error;
+  }
 };
 
 /* 獲取筆記 */

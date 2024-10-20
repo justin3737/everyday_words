@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Button, Text, VStack, Spinner, Center, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Button, Text, VStack, Spinner, Center, HStack, IconButton, Flex, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
-import { fetchVocabulary } from '../api/vocabularyApi';
+import { fetchVocabulary, addNote } from '../api/vocabularyApi';
 import Header from '../components/Header';
-import { FaVolumeUp } from 'react-icons/fa';
+import { FaVolumeUp, FaStar } from 'react-icons/fa';
 import { speakText } from '../utils/speechUtils';
 
 function WordPage() {
@@ -13,13 +13,13 @@ function WordPage() {
   const [words, setWords] = useState<VocabularyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSingleWord, setIsSingleWord] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const { words } = location.state || {};
 
     const initializeWords = async () => {
       if (words) {
-        console.log(words);
         setWords(Array.isArray(words) ? words : [words]);
         setIsSingleWord(!Array.isArray(words));
         setLoading(false);
@@ -54,7 +54,7 @@ function WordPage() {
     return (
       <>
         <Header />
-        <Center h="calc(100vh - 60px)">  {/* 假設 Header 高度為 60px */}
+        <Center h="calc(100vh - 72px)"> 
           <Spinner
             thickness="4px"
             speed="0.65s"
@@ -78,20 +78,48 @@ function WordPage() {
 
   const currentWord = isSingleWord ? words[0] : words[currentWordIndex];
 
+  const handleAddNote = async () => {
+    try {
+      const result = await addNote(currentWord);
+      toast({
+        title: result.message,
+        status: result.success ? 'success' : 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error adding note:', error);
+      toast({
+        title: '加入筆記失敗',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <>
       <Header />
       <Box p={4}>
         <VStack spacing={4} align="start">
-          <HStack>
+          <Flex alignItems="center">
             <Text fontSize="2xl" fontWeight="bold">{currentWord.word}</Text>
             <IconButton
               aria-label="Pronounce word"
               icon={<FaVolumeUp />}
               onClick={() => speakText(currentWord.word)}
               size="sm"
+              ml={2}
             />
-          </HStack>
+            <IconButton
+              aria-label="Add to notes"
+              icon={<FaStar />}
+              onClick={handleAddNote}
+              size="sm"
+              ml={2}
+            />
+          </Flex>
           <Text>{currentWord.phonetic}</Text>
           <Text>{currentWord.translation}</Text>
           <Text>{currentWord.definition}</Text>

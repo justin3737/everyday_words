@@ -1,154 +1,127 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Box, VStack, Text, HStack, Button, useToast, Spinner, List, ListItem, ListIcon } from '@chakra-ui/react';
-import { FaVolumeUp, FaStar, FaCircle } from 'react-icons/fa';
-import Header from '../components/Header';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Box, Button, Text, VStack, Spinner, Center, HStack, IconButton } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
+import { fetchVocabulary } from '../api/vocabularyApi';
+import Header from '../components/Header';
+import { FaVolumeUp } from 'react-icons/fa';
 import { speakText } from '../utils/speechUtils';
-import { fetchVocabulary, addNote } from '../api/vocabularyApi';
 
 function WordPage() {
-  const toast = useToast();
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [words, setWords] = useState<VocabularyItem[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const fetchWords = useCallback(async () => {
-    setLoading(true);
-    try {
-      const fetchedWords = await fetchVocabulary();
-      setWords(fetchedWords);
-    } catch (error) {
-      console.error('Error fetching words:', error);
-      toast({
-        title: '獲取詞彙失敗',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      setWords([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+  const [loading, setLoading] = useState(true);
+  const [isSingleWord, setIsSingleWord] = useState(false);
 
   useEffect(() => {
-    fetchWords();
-  }, [fetchWords]);
+    const { words } = location.state || {};
 
-  const speakWord = () => {
-    speakText(words[currentIndex].word);
-  };
-
-  const addToNotes = async () => {
-    try {
-      await addNote(currentWord);
-      toast({
-        title: '已加入筆記',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 409) {
-        toast({
-          title: '已加入過筆記',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
+    const initializeWords = async () => {
+      if (words) {
+        console.log(words);
+        setWords(Array.isArray(words) ? words : [words]);
+        setIsSingleWord(!Array.isArray(words));
+        setLoading(false);
       } else {
-        console.error('Error adding note:', error);
-        toast({
-          title: '加入筆記失敗',
-          status: 'error',
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    }
-  };
+        try {
+          const data = await fetchVocabulary();
+          setWords(data);
+          setIsSingleWord(false);
+        } catch (error) {
+          console.error('Error fetching word data:', error);
+        }
+        setLoading(false);
+      } 
+    };
+
+    initializeWords();
+  }, [location.state]);
 
   const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+    if (currentWordIndex > 0) {
+      setCurrentWordIndex(prev => prev - 1);
     }
   };
 
   const handleNext = () => {
-    if (currentIndex < words.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    if (currentWordIndex < words.length - 1) {
+      setCurrentWordIndex(prev => prev + 1);
     }
   };
 
-  const speakSentence = (sentence: string) => {
-    speakText(sentence);
-  };
-
-  // Defensive rendering
   if (loading) {
     return (
-      <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Spinner size="xl" />
-      </Box>
+      <>
+        <Header />
+        <Center h="calc(100vh - 60px)">  {/* 假設 Header 高度為 60px */}
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Center>
+      </>
     );
   }
 
-  if (!words || words.length === 0) {
+  if (words.length === 0) {
     return (
-      <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Text>No words available.</Text>
-      </Box>
+      <>
+        <Header />
+        <Box>No word data available.</Box>
+      </>
     );
   }
 
-  const currentWord = words[currentIndex];
-
-  if (!currentWord) {
-    return (
-      <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Text>Error: Unable to load word.</Text>
-      </Box>
-    );
-  }
+  const currentWord = isSingleWord ? words[0] : words[currentWordIndex];
 
   return (
-    <Box minHeight="100vh">
+    <>
       <Header />
-      <VStack spacing={8} padding={8}>
-        <Box width="100%" maxWidth="600px" textAlign="left">
-          <HStack justifyContent="flex-start" width="100%">
-            <Text fontSize="4xl" fontWeight="bold">{currentWord.word}</Text>
-            <HStack ml="auto">
-              <Button onClick={speakWord}><FaVolumeUp /></Button>
-              <Button onClick={addToNotes}><FaStar /></Button>
-            </HStack>
+      <Box p={4}>
+        <VStack spacing={4} align="start">
+          <HStack>
+            <Text fontSize="2xl" fontWeight="bold">{currentWord.word}</Text>
+            <IconButton
+              aria-label="Pronounce word"
+              icon={<FaVolumeUp />}
+              onClick={() => speakText(currentWord.word)}
+              size="sm"
+            />
           </HStack>
-          <Text fontSize="xl" color="gray.600">{currentWord.phonetic}</Text>
-          <Text fontSize="xl" marginTop={4}>{currentWord.translation}</Text>
-          <Text marginTop={4}>{currentWord.definition}</Text>
-          <Text marginTop={4} fontWeight="bold">Examples:</Text>
-          <List spacing={2} styleType="disc">
+          <Text>{currentWord.phonetic}</Text>
+          <Text>{currentWord.translation}</Text>
+          <Text>{currentWord.definition}</Text>
+          <Box>
+            <Text fontWeight="bold" textAlign="left">Examples:</Text>
             {currentWord.examples.map((example, index) => (
-              <ListItem key={index} display="flex" alignItems="flex-start">
-                <ListIcon as={FaCircle} color="blue.500" fontSize="xs" marginTop={2} />
-                <VStack align="flex-start" flex={1} ml={2}>
+              <VStack key={index} align="start" spacing={1} mt={2}>
+                <HStack>
                   <Text>{example.sentence}</Text>
-                  <Text color="gray.600">{example.translation}</Text>
-                </VStack>
-                <Button size="sm" onClick={() => speakSentence(example.sentence)} ml={2}>
-                  <FaVolumeUp />
-                </Button>
-              </ListItem>
+                  <IconButton
+                    aria-label="Pronounce sentence"
+                    icon={<FaVolumeUp />}
+                    onClick={() => speakText(example.sentence)}
+                    size="sm"
+                  />
+                </HStack>
+                <Text color="gray.600">{example.translation}</Text>
+              </VStack>
             ))}
-          </List>
-        </Box>
-        <HStack spacing={4}>
-          <Button onClick={handlePrevious} isDisabled={currentIndex === 0}>上一頁</Button>
-          <Button onClick={handleNext} isDisabled={currentIndex === words.length - 1}>下一頁</Button>
-        </HStack>
-      </VStack>
-    </Box>
+          </Box>
+        </VStack>
+        
+        {!isSingleWord && words.length > 1 && (
+          <Box mt={4}>
+            <Button onClick={handlePrevious} disabled={currentWordIndex === 0} mr={2}>Previous</Button>
+            <Button onClick={handleNext} disabled={currentWordIndex === words.length - 1}>Next</Button>
+          </Box>
+        )}
+      </Box>
+    </>
   );
 }
 

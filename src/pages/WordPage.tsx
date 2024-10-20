@@ -3,8 +3,9 @@ import { Box, VStack, Text, HStack, Button, useToast, Spinner, List, ListItem, L
 import { FaVolumeUp, FaStar, FaCircle } from 'react-icons/fa';
 import Header from '../components/Header';
 import axios from 'axios';
-import { VocabularyItem, VocabularyResponse } from '../types/vocabulary';
+import { VocabularyItem } from '../types/vocabulary';
 import { speakText } from '../utils/speechUtils';
+import { fetchVocabulary, addNote } from '../api/vocabularyApi';
 
 function WordPage() {
   const toast = useToast();
@@ -15,17 +16,8 @@ function WordPage() {
   const fetchWords = useCallback(async () => {
     setLoading(true);
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3700';
-      if (!apiBaseUrl) {
-        throw new Error('API base URL is not defined');
-      }
-      const response = await axios.get<VocabularyResponse>(`${apiBaseUrl}/api/vocabulary`);
-      if (response.data && Array.isArray(response.data.content)) {
-        setWords(response.data.content);
-      } else {
-        console.error('Unexpected response format:', response.data);
-        setWords([]);
-      }
+      const fetchedWords = await fetchVocabulary();
+      setWords(fetchedWords);
     } catch (error) {
       console.error('Error fetching words:', error);
       toast({
@@ -50,11 +42,7 @@ function WordPage() {
 
   const addToNotes = async () => {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3700';
-      if (!apiBaseUrl) {
-        throw new Error('API base URL is not defined');
-      }
-      await axios.post(`${apiBaseUrl}/api/addNote`, currentWord);
+      await addNote(currentWord);
       toast({
         title: '已加入筆記',
         status: 'success',

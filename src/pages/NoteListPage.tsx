@@ -15,8 +15,13 @@ function NoteListPage() {
     const fetchNotesData = async () => {
       try {
         const response = await fetchNotes();
-        if (response && Array.isArray(response.content)) {
-          setNotes(response.content as NoteList);
+        if (Array.isArray(response)) {
+          // 使用類型守衛來確保 response 是 NoteList 類型
+          if (isNoteList(response)) {
+            setNotes(response);
+          } else {
+            throw new Error('Invalid note data format received from API');
+          }
         } else {
           throw new Error('Invalid data format received from API');
         }
@@ -83,3 +88,14 @@ function NoteListPage() {
 }
 
 export default NoteListPage;
+
+// 在組件外部或文件頂部添加這個類型守衛函數
+function isNoteList(data: unknown): data is NoteList {
+  return Array.isArray(data) && data.every((item) => 
+    typeof item === 'object' &&
+    item !== null &&
+    'word' in item &&
+    'phonetic' in item &&
+    'definition' in item
+  );
+}

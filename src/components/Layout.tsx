@@ -12,16 +12,16 @@ function Layout({ children, showHeader = true }: LayoutProps) {
 
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column">
-      {showHeader && <Header />}
       <Container
-        as="main"
         maxW={containerMaxWidth}
         w="100%"
         px={{ base: 2, sm: 4, md: 6 }}
         py={{ base: 3, sm: 4, md: 6 }}
-        flex="1"
       >
-        {children}
+        {showHeader && <Header />}
+        <Box as="main" flex="1">
+          {children}
+        </Box>
       </Container>
     </Box>
   );

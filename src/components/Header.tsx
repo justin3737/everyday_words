@@ -22,8 +22,8 @@ function Header() {
   };
 
   return (
-    <Box bg="gray.100" py={4} position="sticky" top={0} zIndex={1000}>
-      <Flex maxW="container.xl" mx="auto" alignItems="center" justifyContent="space-between" px={4}>
+    <Box bg="gray.100" py={4} position="sticky" top={0} zIndex={1000} alignItems="center">
+      <Flex alignItems="center" justifyContent="space-between" px={4}>
         <Box onClick={goToHome} cursor="pointer">
           <img src="/src/assets/logo.png" alt="App Icon" width="32px" height="32px"/>
         </Box>

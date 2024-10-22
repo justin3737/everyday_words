@@ -72,7 +72,14 @@ function SingleWordPage() {
 
   return (
     <Layout>
-      <WordPageContent word={word} onAddNote={handleAddNote} />
+      <WordPageContent 
+        word={word} 
+        onAddNote={handleAddNote} 
+        showNavigation={false}
+        currentIndex={0}
+        totalWords={1}
+        onPageChange={() => {}}
+      />
       <Box mt={4}>
         <Button onClick={() => navigate(-1)}>返回</Button>
       </Box>

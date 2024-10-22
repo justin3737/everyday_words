@@ -1,6 +1,7 @@
-import { Box, Button } from '@chakra-ui/react';
+import { Box, VStack } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import WordCard from './WordCard';
+import PaginationNav from './PaginationNav';
 
 /**
  * WordPageContent 組件的 props 接口
@@ -10,22 +11,19 @@ interface WordPageContentProps {
   word: VocabularyItem;
   
   /** 添加筆記的回調函數 */
-  onAddNote: () => Promise<void>;
+  onAddNote: () => void;
   
   /** 是否顯示導航按鈕 */
-  showNavigation?: boolean;
+  showNavigation: boolean;
   
-  /** 點擊"上一個"按鈕時的回調函數 */
-  onPrevious?: () => void;
+  /** 目前頁面的索引 */
+  currentIndex: number;
   
-  /** 點擊"下一個"按鈕時的回調函數 */
-  onNext?: () => void;
+  /** 總共的單詞數 */
+  totalWords: number;
   
-  /** "上一個"按鈕是否禁用 */
-  isPreviousDisabled?: boolean;
-  
-  /** "下一個"按鈕是否禁用 */
-  isNextDisabled?: boolean;
+  /** 頁面變更的回調函數 */
+  onPageChange: (newPage: number) => void;
 }
 
 /**
@@ -37,22 +35,25 @@ interface WordPageContentProps {
 function WordPageContent({
   word,
   onAddNote,
-  showNavigation = false,
-  onPrevious,
-  onNext,
-  isPreviousDisabled,
-  isNextDisabled
+  showNavigation,
+  currentIndex,
+  totalWords,
+  onPageChange
 }: WordPageContentProps) {
   return (
-    <>
+    <VStack spacing={4} align="stretch">
       <WordCard word={word} onAddNote={onAddNote} />
       {showNavigation && (
         <Box mt={4}>
-          <Button onClick={onPrevious} disabled={isPreviousDisabled} mr={2}>Previous</Button>
-          <Button onClick={onNext} disabled={isNextDisabled}>Next</Button>
+          <PaginationNav
+            currentPage={currentIndex + 1}
+            totalPages={totalWords}
+            onPageChange={onPageChange}
+            showPageNumbers={totalWords > 1}
+          />
         </Box>
       )}
-    </>
+    </VStack>
   );
 }
 

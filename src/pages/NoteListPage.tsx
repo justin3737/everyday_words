@@ -9,11 +9,14 @@ import { VocabularyItem } from '../types/vocabulary';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import PaginationNav from '../components/PaginationNav';
 
 function NoteListPage() {
   const [notes, setNotes] = useState<NoteList>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +38,21 @@ function NoteListPage() {
 
     fetchNotesData();
   }, []);
+
+  // 計算總頁數
+  const totalPages = Math.ceil(notes.length / itemsPerPage);
+
+  // 獲取當前頁的筆記
+  const getCurrentPageNotes = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return notes.slice(startIndex, endIndex);
+  };
+
+  // 處理頁面變更
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   if (loading) {
     return (
@@ -67,24 +85,31 @@ function NoteListPage() {
         alignItems="stretch"
       >
         {notes && notes.length > 0 ? (
-          notes.map((note, index) => (
-            <Box key={index} borderWidth={1} borderRadius="md" padding={4} onClick={() => handleWordClick(note)} cursor="pointer">
-              <HStack justifyContent="space-between">
-                <Flex direction="column" align="flex-start">
-                  <Text fontSize="xl" fontWeight="bold">
-                    {note.word} <Text as="span" fontSize="md" color="gray.600">[{note.phonetic}]</Text>
-                    <Button size="sm" onClick={(e) => { e.stopPropagation(); handleSpeak(note.word); }} ml={2}>
-                      <FaVolumeUp />
-                    </Button>
-                  </Text>
-                  <Text fontSize="md">{note.definition}</Text>
-                </Flex>
-                <HStack>
-                  <Button size="sm" onClick={(e) => e.stopPropagation()}><FaStar /></Button>
+          <>
+            {getCurrentPageNotes().map((note, index) => (
+              <Box key={index} borderWidth={1} borderRadius="md" padding={4} onClick={() => handleWordClick(note)} cursor="pointer">
+                <HStack justifyContent="space-between">
+                  <Flex direction="column" align="flex-start">
+                    <Text fontSize="xl" fontWeight="bold">
+                      {note.word} <Text as="span" fontSize="md" color="gray.600">[{note.phonetic}]</Text>
+                      <Button size="sm" onClick={(e) => { e.stopPropagation(); handleSpeak(note.word); }} ml={2}>
+                        <FaVolumeUp />
+                      </Button>
+                    </Text>
+                    <Text fontSize="md">{note.definition}</Text>
+                  </Flex>
+                  <HStack>
+                    <Button size="sm" onClick={(e) => e.stopPropagation()}><FaStar /></Button>
+                  </HStack>
                 </HStack>
-              </HStack>
-            </Box>
-          ))
+              </Box>
+            ))}
+            <PaginationNav
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         ) : (
           <Text>No notes available.</Text>
         )}

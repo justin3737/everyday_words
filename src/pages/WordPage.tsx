@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Button, Text, VStack, Spinner, Center, HStack, IconButton, Flex, useToast } from '@chakra-ui/react';
+import { Box, Button, Spinner, Center, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import { fetchVocabulary, addNote } from '../api/vocabularyApi';
-import Header from '../components/Header';
-import { FaVolumeUp, FaStar } from 'react-icons/fa';
-import { speakText } from '../utils/speechUtils';
+import Layout from '../components/Layout';
+import WordCard from '../components/WordCard';
 
 function WordPage() {
   const location = useLocation();
@@ -53,7 +52,6 @@ function WordPage() {
   if (loading) {
     return (
       <>
-        <Header />
         <Center h="calc(100vh - 72px)"> 
           <Spinner
             thickness="4px"
@@ -70,7 +68,6 @@ function WordPage() {
   if (words.length === 0) {
     return (
       <>
-        <Header />
         <Box>No word data available.</Box>
       </>
     );
@@ -99,57 +96,15 @@ function WordPage() {
   };
 
   return (
-    <>
-      <Header />
-      <Box p={4}>
-        <VStack spacing={4} align="start">
-          <Flex alignItems="center">
-            <Text fontSize="2xl" fontWeight="bold">{currentWord.word}</Text>
-            <IconButton
-              aria-label="Pronounce word"
-              icon={<FaVolumeUp />}
-              onClick={() => speakText(currentWord.word)}
-              size="sm"
-              ml={2}
-            />
-            <IconButton
-              aria-label="Add to notes"
-              icon={<FaStar />}
-              onClick={handleAddNote}
-              size="sm"
-              ml={2}
-            />
-          </Flex>
-          <Text>{currentWord.phonetic}</Text>
-          <Text>{currentWord.translation}</Text>
-          <Text>{currentWord.definition}</Text>
-          <Box>
-            <Text fontWeight="bold" textAlign="left">Examples:</Text>
-            {currentWord.examples.map((example, index) => (
-              <VStack key={index} align="start" spacing={1} mt={2}>
-                <HStack>
-                  <Text>{example.sentence}</Text>
-                  <IconButton
-                    aria-label="Pronounce sentence"
-                    icon={<FaVolumeUp />}
-                    onClick={() => speakText(example.sentence)}
-                    size="sm"
-                  />
-                </HStack>
-                <Text color="gray.600">{example.translation}</Text>
-              </VStack>
-            ))}
-          </Box>
-        </VStack>
-        
-        {!isSingleWord && words.length > 1 && (
-          <Box mt={4}>
-            <Button onClick={handlePrevious} disabled={currentWordIndex === 0} mr={2}>Previous</Button>
-            <Button onClick={handleNext} disabled={currentWordIndex === words.length - 1}>Next</Button>
-          </Box>
-        )}
-      </Box>
-    </>
+    <Layout>
+      <WordCard word={currentWord} onAddNote={handleAddNote} />
+      {!isSingleWord && words.length > 1 && (
+        <Box mt={4}>
+          <Button onClick={handlePrevious} disabled={currentWordIndex === 0} mr={2}>Previous</Button>
+          <Button onClick={handleNext} disabled={currentWordIndex === words.length - 1}>Next</Button>
+        </Box>
+      )}
+    </Layout>
   );
 }
 

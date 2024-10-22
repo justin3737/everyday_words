@@ -3,6 +3,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import Home from './pages/Home';
 import WordPage from './pages/WordPage';
 import NoteListPage from './pages/NoteListPage';
+import SingleWordPage from './pages/SingleWordPage';
 import './App.css'
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/word" element={<WordPage />} />
+          <Route path="/word/:wordId" element={<SingleWordPage />} />
           <Route path="/notes" element={<NoteListPage />} />
         </Routes>
       </Router>

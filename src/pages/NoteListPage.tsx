@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Box, VStack, Text, HStack, Button, Spinner, Flex } from '@chakra-ui/react';
 import { FaVolumeUp, FaStar } from 'react-icons/fa';
-import Header from '../components/Header';
 import { speakText } from '../utils/speechUtils';
 import { NoteList } from '../types/note';
 import { fetchNotes } from '../api/vocabularyApi';
 import { useNavigate } from 'react-router-dom';
 import { VocabularyItem } from '../types/vocabulary';
+import Layout from '../components/Layout';
 
 function NoteListPage() {
   const [notes, setNotes] = useState<NoteList>([]);
@@ -55,13 +55,12 @@ function NoteListPage() {
   };
 
   const handleWordClick = (word: VocabularyItem) => {
-    navigate('/word', { state: { words:word } });
+    navigate('/word/' + encodeURIComponent(word.word), { state: { word } });
   };
 
   return (
-    <Box minHeight="100vh" display="flex" flexDirection="column">
-      <Header />
-      <VStack spacing={4} padding={8} align="stretch" maxWidth="600px" margin="0 auto" flex="1">
+    <Layout>
+      <VStack spacing={4} align="stretch">
         {notes && notes.length > 0 ? (
           notes.map((note, index) => (
             <Box key={index} borderWidth={1} borderRadius="md" padding={4} onClick={() => handleWordClick(note)} cursor="pointer">
@@ -85,7 +84,7 @@ function NoteListPage() {
           <Text>No notes available.</Text>
         )}
       </VStack>
-    </Box>
+    </Layout>
   );
 }
 

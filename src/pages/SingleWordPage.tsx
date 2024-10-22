@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Button, Spinner, Center, useToast } from '@chakra-ui/react';
+import { Box, Button, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import { addNote } from '../api/vocabularyApi';
 import Layout from '../components/Layout';
-import WordCard from '../components/WordCard';
 
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
+import WordPageContent from '../components/WordPageContent';
+
+/**
+ * SingleWordPage 組件
+ * 
+ * 這個組件用於顯示單個單詞的詳細信息。
+ * 它從 URL 參數中獲取單詞，然後從 API 獲取該單詞的詳細信息。
+ * 組件還處理添加筆記的功能，並在加載或錯誤時顯示適當的UI。
+ */
 function SingleWordPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,15 +57,7 @@ function SingleWordPage() {
   if (loading) {
     return (
       <Layout>
-        <Center h="calc(100vh - 72px)">
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
-        </Center>
+        <LoadingSpinner />
       </Layout>
     );
   }
@@ -63,14 +65,14 @@ function SingleWordPage() {
   if (!word) {
     return (
       <Layout>
-        <Box>No word data available.</Box>
+        <ErrorMessage message="No word data available." />
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <WordCard word={word} onAddNote={handleAddNote} />
+      <WordPageContent word={word} onAddNote={handleAddNote} />
       <Box mt={4}>
         <Button onClick={() => navigate(-1)}>返回</Button>
       </Box>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, VStack, Text, HStack, Button, Spinner, Flex } from '@chakra-ui/react';
+import { Box, VStack, Text, HStack, Button, Flex } from '@chakra-ui/react';
 import { FaVolumeUp, FaStar } from 'react-icons/fa';
 import { speakText } from '../utils/speechUtils';
 import { NoteList } from '../types/note';
@@ -7,6 +7,8 @@ import { fetchNotes } from '../api/vocabularyApi';
 import { useNavigate } from 'react-router-dom';
 import { VocabularyItem } from '../types/vocabulary';
 import Layout from '../components/Layout';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 
 function NoteListPage() {
   const [notes, setNotes] = useState<NoteList>([]);
@@ -36,17 +38,17 @@ function NoteListPage() {
 
   if (loading) {
     return (
-      <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Spinner size="xl" />
-      </Box>
+      <Layout>
+        <LoadingSpinner />
+      </Layout>
     );
   }
 
   if (error) {
     return (
-      <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Text color="red.500">{error}</Text>
-      </Box>
+      <Layout>
+        <ErrorMessage message={error} />
+      </Layout>
     );
   }
 
@@ -60,7 +62,10 @@ function NoteListPage() {
 
   return (
     <Layout>
-      <VStack spacing={4} align="stretch">
+      <VStack
+        spacing={4}
+        alignItems="stretch"
+      >
         {notes && notes.length > 0 ? (
           notes.map((note, index) => (
             <Box key={index} borderWidth={1} borderRadius="md" padding={4} onClick={() => handleWordClick(note)} cursor="pointer">

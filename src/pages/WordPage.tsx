@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Button, Spinner, Center, useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import { fetchVocabulary, addNote } from '../api/vocabularyApi';
 import Layout from '../components/Layout';
-import WordCard from '../components/WordCard';
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
+import WordPageContent from '../components/WordPageContent';
 
 function WordPage() {
   const location = useLocation();
@@ -51,25 +53,17 @@ function WordPage() {
 
   if (loading) {
     return (
-      <>
-        <Center h="calc(100vh - 72px)"> 
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
-        </Center>
-      </>
+      <Layout>
+        <LoadingSpinner />
+      </Layout>
     );
   }
 
   if (words.length === 0) {
     return (
-      <>
-        <Box>No word data available.</Box>
-      </>
+      <Layout>
+        <ErrorMessage message="No word data available." />
+      </Layout>
     );
   }
 
@@ -97,13 +91,15 @@ function WordPage() {
 
   return (
     <Layout>
-      <WordCard word={currentWord} onAddNote={handleAddNote} />
-      {!isSingleWord && words.length > 1 && (
-        <Box mt={4}>
-          <Button onClick={handlePrevious} disabled={currentWordIndex === 0} mr={2}>Previous</Button>
-          <Button onClick={handleNext} disabled={currentWordIndex === words.length - 1}>Next</Button>
-        </Box>
-      )}
+      <WordPageContent
+        word={currentWord}
+        onAddNote={handleAddNote}
+        showNavigation={!isSingleWord && words.length > 1}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+        isPreviousDisabled={currentWordIndex === 0}
+        isNextDisabled={currentWordIndex === words.length - 1}
+      />
     </Layout>
   );
 }

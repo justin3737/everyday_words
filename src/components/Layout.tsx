@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, useBreakpointValue } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import Header from './Header';
 
 interface LayoutProps {
@@ -8,13 +8,12 @@ interface LayoutProps {
 }
 
 function Layout({ children, showHeader = true }: LayoutProps) {
-  const containerMaxWidth = useBreakpointValue({ base: "100%", md: "container.md" });
-
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column">
-      <Container
-        maxW={containerMaxWidth}
+      <Box
+        maxW={{ base: "100%", md: "container.md" }}
         w="100%"
+        mx="auto"
         px={{ base: 2, sm: 4, md: 6 }}
         py={{ base: 3, sm: 4, md: 6 }}
       >
@@ -22,7 +21,7 @@ function Layout({ children, showHeader = true }: LayoutProps) {
         <Box as="main" flex="1">
           {children}
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 }

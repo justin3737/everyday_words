@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
@@ -71,14 +72,16 @@ function WordPage() {
 
   return (
     <Layout>
-      <WordPageContent
-        word={currentWord}
-        onAddNote={handleAddNote}
-        showNavigation={words.length > 1}
-        currentIndex={currentWordIndex}
-        totalWords={words.length}
-        onPageChange={handlePageChange}
-      />
+      <Box width="100%">
+        <WordPageContent
+          word={currentWord}
+          onAddNote={handleAddNote}
+          showNavigation={words.length > 1}
+          currentIndex={currentWordIndex}
+          totalWords={words.length}
+          onPageChange={handlePageChange}
+        />
+      </Box>
     </Layout>
   );
 }

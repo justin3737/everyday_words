@@ -81,8 +81,8 @@ function NoteListPage() {
   return (
     <Layout>
       <VStack
-        spacing={4}
         alignItems="stretch"
+        width="100%"
       >
         {notes && notes.length > 0 ? (
           <>

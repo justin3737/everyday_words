@@ -12,7 +12,7 @@ function Home() {
   return (
     <Layout showHeader={false}>
       <VStack spacing={8} justify="center">
-        <Image src="/src/assets/logo.png" alt="App Icon" boxSize="150px" my={20}/>
+        <Image src="/logo.png" alt="App Icon" boxSize="150px" my={20}/>
         <Text fontSize="2xl" fontWeight="bold">每日記單字</Text>
         <VStack spacing={4} width="300px">
           <Input placeholder="帳號" />

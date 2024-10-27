@@ -1,7 +1,15 @@
+
+# 進入本應用程式
+- https://everyday-words-f2e.vercel.app
+
+# 開發
+```
+yarn install
+yarn dev
+```
+
 # 如何使用此 repository：
 - 後端請搭配 https://github.com/justin3737/everyday_words_backend/
-- 本地端測試 分支請使用 dev
-- 正式站 分支請使用 main
 
 ## Stack
 - React

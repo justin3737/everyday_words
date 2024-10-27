@@ -11,10 +11,10 @@ const getApiBaseUrl = () => {
   return apiBaseUrl;
 };
 
-/* 獲取詞彙 */
+/* 獲取隨機10個單字 */
 export const fetchVocabulary = async (): Promise<VocabularyItem[]> => {
   const apiBaseUrl = getApiBaseUrl();
-  const response = await axios.get<VocabularyResponse>(`${apiBaseUrl}/api/vocabulary`);
+  const response = await axios.get<VocabularyResponse>(`${apiBaseUrl}/api/randomVocabulary`);
   if (response.data && Array.isArray(response.data.content)) {
     return response.data.content;
   } else {

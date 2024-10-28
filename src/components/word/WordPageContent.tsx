@@ -1,7 +1,7 @@
 import { Box, VStack } from '@chakra-ui/react';
-import { VocabularyItem } from '../types/vocabulary';
+import { VocabularyItem } from '../../types/vocabulary';
 import WordCard from './WordCard';
-import PaginationNav from './PaginationNav';
+import PaginationNav from '../common/PaginationNav';
 
 /**
  * WordPageContent 組件的 props 接口

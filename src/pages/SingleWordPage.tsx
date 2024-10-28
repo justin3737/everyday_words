@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import { addNote, fetchVocabularyByWord } from '../api/vocabularyApi';
-import Layout from '../components/Layout';
+import Layout from '../components/common/Layout';
 
-import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorMessage from '../components/ErrorMessage';
-import WordPageContent from '../components/WordPageContent';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import WordPageContent from '../components/word/WordPageContent';
 
 /**
  * SingleWordPage 組件
@@ -26,11 +26,13 @@ function SingleWordPage() {
   useEffect(() => {
     const fetchWord = async () => {
       try {
-        // 從 URL 路徑中獲取單字
-        const wordFromPath = decodeURIComponent(window.location.pathname.split('/word/')[1]);
-        // 將 state 中的 word 物件解構，使程式碼更容易理解
-        const wordData = location.state?.word;
-        const searchWord = wordData?.word || wordFromPath || '';
+        const getWordFromUrl = () => {
+          const wordFromPath = decodeURIComponent(window.location.pathname.split('/word/')[1]);
+          const wordData = location.state?.word;
+          return wordData?.word || wordFromPath || '';
+        };
+
+        const searchWord = getWordFromUrl();
         
         if (!searchWord) {
           setLoading(false);

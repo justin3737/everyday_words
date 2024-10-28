@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Box, VStack, Text, HStack, Button, Flex } from '@chakra-ui/react';
-import { FaVolumeUp, FaStar } from 'react-icons/fa';
+import { VStack, Text} from '@chakra-ui/react';
 import { speakText } from '../utils/speechUtils';
 import { NoteList } from '../types/note';
 import { fetchNotes } from '../api/vocabularyApi';
 import { useNavigate } from 'react-router-dom';
 import { VocabularyItem } from '../types/vocabulary';
-import Layout from '../components/Layout';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorMessage from '../components/ErrorMessage';
-import PaginationNav from '../components/PaginationNav';
+import Layout from '../components/common/Layout';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import PaginationNav from '../components/common/PaginationNav';
+import NoteItem from '../components/note/NoteItem';
 
 function NoteListPage() {
   const [notes, setNotes] = useState<NoteList>([]);
@@ -87,22 +87,12 @@ function NoteListPage() {
         {notes && notes.length > 0 ? (
           <>
             {getCurrentPageNotes().map((note, index) => (
-              <Box key={index} borderWidth={1} borderRadius="md" padding={4} onClick={() => handleWordClick(note)} cursor="pointer">
-                <HStack justifyContent="space-between">
-                  <Flex direction="column" align="flex-start">
-                    <Text fontSize="xl" fontWeight="bold">
-                      {note.word} <Text as="span" fontSize="md" color="gray.600">[{note.phonetic}]</Text>
-                      <Button size="sm" onClick={(e) => { e.stopPropagation(); handleSpeak(note.word); }} ml={2}>
-                        <FaVolumeUp />
-                      </Button>
-                    </Text>
-                    <Text fontSize="md">{note.definition}</Text>
-                  </Flex>
-                  <HStack>
-                    <Button size="sm" onClick={(e) => e.stopPropagation()}><FaStar /></Button>
-                  </HStack>
-                </HStack>
-              </Box>
+              <NoteItem
+                key={index}
+                note={note}
+                onSpeak={handleSpeak}
+                onClick={() => handleWordClick(note)}
+              />
             ))}
             <PaginationNav
               currentPage={currentPage}

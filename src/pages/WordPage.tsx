@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
 import { fetchVocabulary, addNote } from '../api/vocabularyApi';
-import Layout from '../components/Layout';
-import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorMessage from '../components/ErrorMessage';
-import WordPageContent from '../components/WordPageContent';
+import Layout from '../components/common/Layout';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorMessage from '../components/common/ErrorMessage';
+import WordPageContent from '../components/word/WordPageContent';
 
 function WordPage() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);

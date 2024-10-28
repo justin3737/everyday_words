@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Text, VStack, IconButton, Flex, HStack } from '@chakra-ui/react';
 import { FaVolumeUp, FaStar } from 'react-icons/fa';
-import { VocabularyItem } from '../types/vocabulary';
-import { speakText } from '../utils/speechUtils';
+import { VocabularyItem } from '../../types/vocabulary';
+import { speakText } from '../../utils/speechUtils';
 
 interface WordCardProps {
   word: VocabularyItem;
@@ -41,7 +41,7 @@ const WordCard: React.FC<WordCardProps> = ({ word, onAddNote }) => {
         
         <Box>
           <Text fontWeight="bold" fontSize="lg" mb={3}>Examples:</Text>
-          {word && word.examples.map((example, index) => (
+          {word.examples.length > 0 && word.examples.map((example, index) => (
             <VStack key={index} align="start" spacing={2} mb={4}>
               <HStack spacing={3}>
                 <Text fontStyle="italic">"{example.sentence}"</Text>

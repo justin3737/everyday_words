@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Text, VStack, IconButton, Flex, HStack } from '@chakra-ui/react';
-import { FaVolumeUp, FaStar } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa';
 import { VocabularyItem } from '../../types/vocabulary';
-import { speakText } from '../../utils/speechUtils';
+import SpeakButton from '../common/SpeakButton';
 
 interface WordCardProps {
   word: VocabularyItem;
@@ -19,12 +19,7 @@ const WordCard: React.FC<WordCardProps> = ({ word, onAddNote }) => {
             <Text fontSize="md" color="gray.600">[{word.phonetic}]</Text>
           </HStack>
           <HStack spacing={2}>
-            <IconButton
-              aria-label="Pronounce word"
-              icon={<FaVolumeUp />}
-              onClick={() => speakText(word.word)}
-              size="sm"
-            />
+            <SpeakButton text={word.word} />
             <IconButton
               aria-label="Add to notes"
               icon={<FaStar />}
@@ -45,12 +40,7 @@ const WordCard: React.FC<WordCardProps> = ({ word, onAddNote }) => {
             <VStack key={index} align="start" spacing={2} mb={4}>
               <HStack spacing={3}>
                 <Text fontStyle="italic">"{example.sentence}"</Text>
-                <IconButton
-                  aria-label="Pronounce sentence"
-                  icon={<FaVolumeUp />}
-                  onClick={() => speakText(example.sentence)}
-                  size="sm"
-                />
+                <SpeakButton text={example.sentence} />
               </HStack>
               <Text color="gray.600">{example.translation}</Text>
             </VStack>

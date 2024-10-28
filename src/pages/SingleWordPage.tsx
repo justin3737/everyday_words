@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
-import { addNote } from '../api/vocabularyApi';
+import { addNote, fetchVocabularyByWord } from '../api/vocabularyApi';
 import Layout from '../components/Layout';
 
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -24,14 +24,37 @@ function SingleWordPage() {
   const toast = useToast();
 
   useEffect(() => {
-    const { word } = location.state || {};
-    if (word) {
-      setWord(word);
-      setLoading(false);
-    } else {
-      setLoading(false);
-    }
-  }, [location.state]);
+    const fetchWord = async () => {
+      try {
+        // 從 URL 路徑中獲取單字
+        const wordFromPath = decodeURIComponent(window.location.pathname.split('/word/')[1]);
+        // 將 state 中的 word 物件解構，使程式碼更容易理解
+        const wordData = location.state?.word;
+        const searchWord = wordData?.word || wordFromPath || '';
+        
+        if (!searchWord) {
+          setLoading(false);
+          return;
+        }
+        
+        const result = await fetchVocabularyByWord(searchWord);
+        console.log(result);
+        setWord(result);
+      } catch (error) {
+        console.error('Error fetching word:', error);
+        toast({
+          title: '獲取單字資訊失敗',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWord();
+  }, [location.state, toast]);
 
   const handleAddNote = async () => {
     if (!word) return;

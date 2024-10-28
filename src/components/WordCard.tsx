@@ -41,7 +41,7 @@ const WordCard: React.FC<WordCardProps> = ({ word, onAddNote }) => {
         
         <Box>
           <Text fontWeight="bold" fontSize="lg" mb={3}>Examples:</Text>
-          {word.examples.map((example, index) => (
+          {word && word.examples.map((example, index) => (
             <VStack key={index} align="start" spacing={2} mb={4}>
               <HStack spacing={3}>
                 <Text fontStyle="italic">"{example.sentence}"</Text>

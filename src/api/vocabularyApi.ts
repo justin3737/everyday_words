@@ -22,6 +22,19 @@ export const fetchVocabulary = async (): Promise<VocabularyItem[]> => {
     return [];
   }
 };
+
+/* 獲取1個單字 */
+export const fetchVocabularyByWord = async (word: string): Promise<VocabularyItem> => {
+    const apiBaseUrl = getApiBaseUrl();
+    const response = await axios.get<VocabularyItem>(`${apiBaseUrl}/api/vocabulary/${word}`);
+    if (response.data) {
+      return response.data;
+    } else {
+      console.error('Unexpected response format:', response.data);
+      return {} as VocabularyItem; // 返回空的 VocabularyItem 物件
+    }
+  };
+
 /* 新增筆記 */
 export const addNote = async (word: VocabularyItem): Promise<{ success: boolean; message: string }> => {
   const apiBaseUrl = getApiBaseUrl();

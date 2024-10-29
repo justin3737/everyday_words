@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { VStack, Text} from '@chakra-ui/react';
+import { VStack, Text, useToast } from '@chakra-ui/react';
 import { speakText } from '../utils/speechUtils';
 import { NoteList } from '../types/note';
-import { fetchNotes } from '../api/vocabularyApi';
+import { deleteNote, fetchNotes } from '../api/noteApi';
 import { useNavigate } from 'react-router-dom';
 import { VocabularyItem } from '../types/vocabulary';
 import Layout from '../components/common/Layout';
@@ -18,6 +18,7 @@ function NoteListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     const fetchNotesData = async () => {
@@ -78,6 +79,43 @@ function NoteListPage() {
     navigate('/word/' + encodeURIComponent(word.word), { state: { word } });
   };
 
+  const handleDeleteNote = async (word: string) => {
+    try {
+      const result = await deleteNote(word);
+      if (result.success) {
+        // 重新獲取筆記列表
+        const response = await fetchNotes();
+        if (Array.isArray(response)) {
+          setNotes(response as NoteList);
+        }
+        toast({
+          title: '成功',
+          description: result.message,
+          status: 'success',
+          duration: 3000,
+          isClosable: true
+        });
+      } else {
+        toast({
+          title: '失敗',
+          description: result.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true
+        });
+      }
+    } catch (err) {
+      console.error('Error deleting note:', err);
+      toast({
+        title: '錯誤',
+        description: '刪除筆記時發生錯誤',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      });
+    }
+  };
+
   return (
     <Layout>
       <VStack
@@ -92,6 +130,7 @@ function NoteListPage() {
                 note={note}
                 onSpeak={handleSpeak}
                 onClick={() => handleWordClick(note)}
+                onDelete={handleDeleteNote}
               />
             ))}
             <PaginationNav

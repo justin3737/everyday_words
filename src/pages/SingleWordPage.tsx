@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, useToast } from '@chakra-ui/react';
 import { VocabularyItem } from '../types/vocabulary';
-import { addNote, fetchVocabularyByWord } from '../api/vocabularyApi';
+import { fetchVocabularyByWord } from '../api/vocabularyApi';
+import { addNote } from '../api/noteApi';
 import Layout from '../components/common/Layout';
 
 import LoadingSpinner from '../components/common/LoadingSpinner';

@@ -1,14 +1,15 @@
 import { Box, Text, Button, HStack, Flex } from '@chakra-ui/react';
-import { FaVolumeUp, FaStar } from 'react-icons/fa';
+import { FaVolumeUp, FaTrash } from 'react-icons/fa';
 import { VocabularyItem } from '../../types/vocabulary';
 
 interface NoteItemProps {
   note: VocabularyItem;
   onSpeak: (word: string) => void;
   onClick: () => void;
+  onDelete: (word: string) => void;
 }
 
-const NoteItem = ({ note, onSpeak, onClick }: NoteItemProps) => (
+const NoteItem = ({ note, onSpeak, onClick, onDelete }: NoteItemProps) => (
   <Box borderWidth={1} borderRadius="md" padding={4} onClick={onClick} cursor="pointer">
     <HStack justifyContent="space-between">
       <Flex direction="column" align="flex-start">
@@ -21,7 +22,17 @@ const NoteItem = ({ note, onSpeak, onClick }: NoteItemProps) => (
         <Text fontSize="md">{note.definition}</Text>
       </Flex>
       <HStack>
-        <Button size="sm" onClick={(e) => e.stopPropagation()}><FaStar /></Button>
+        {/* <Button size="sm" onClick={(e) => e.stopPropagation()}><FaStar /></Button> */}
+        <Button 
+          size="sm" 
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(note.word);
+          }}
+          aria-label='刪除筆記'
+        >
+          <FaTrash />
+        </Button>
       </HStack>
     </HStack>
   </Box>

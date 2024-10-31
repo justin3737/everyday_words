@@ -1,6 +1,7 @@
 import { VStack, Image, Text, Input, Button } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
+import LoginButton from '../components/LoginButton';
 
 function Home() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function Home() {
           <Input placeholder="帳號" />
           <Input placeholder="密碼" type="password" />
           <Button colorScheme="blue" width="100%" onClick={handleEnter}>Enter</Button>
+          <LoginButton />
         </VStack>
       </VStack>
     </Layout>

@@ -2,15 +2,21 @@ let maleVoice: SpeechSynthesisVoice | null = null;
 
 // 初始化函數，用於獲取男聲
 const initVoices = () => {
-  // 獲取所有可用的聲音
   const voices = speechSynthesis.getVoices();
   
-  // 尋找第一個男聲
-  maleVoice = voices.find(voice => voice.name.includes('Male') || voice.name.includes('男')) || null;
+  // 優先尋找 Google 的英語聲音
+  maleVoice = voices.find(voice => 
+    voice.name.includes('Google') && voice.lang.startsWith('en')
+  ) || null;
   
-  // 如果沒有找到明確的男聲，嘗試找英語聲音（通常默認是男聲）
+  // 如果沒有 Google 聲音，尋找任何英語聲音
   if (!maleVoice) {
     maleVoice = voices.find(voice => voice.lang.startsWith('en')) || null;
+  }
+  
+  // 如果還是沒有，使用任何可用的聲音
+  if (!maleVoice && voices.length > 0) {
+    maleVoice = voices[0];
   }
 };
 
@@ -23,16 +29,24 @@ if (typeof window !== 'undefined') {
 }
 
 export const speakText = (text: string) => {
+  // 取消所有正在播放的語音
+  speechSynthesis.cancel();
+  
   const utterance = new SpeechSynthesisUtterance(text);
   
-  // 如果找到了男聲，就使用它
   if (maleVoice) {
     utterance.voice = maleVoice;
   }
   
-  // 可以調整音調和速度來使聲音更像男聲
-  utterance.pitch = 0.8; // 降低音調（範圍 0 到 2）
-  utterance.rate = 0.9; // 稍微降低速度（範圍 0.1 到 10）
+  // 調整為更自然的設定
+  utterance.pitch = 1.0;  // 使用正常音調
+  utterance.rate = 0.9;   // 稍微放慢速度
+  utterance.volume = 1.0; // 最大音量
+  
+  // 確保語音初始化
+  if (speechSynthesis.getVoices().length === 0) {
+    initVoices();
+  }
   
   speechSynthesis.speak(utterance);
 };

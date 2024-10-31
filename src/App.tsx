@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import WordPage from './pages/WordPage';
 import NoteListPage from './pages/NoteListPage';
 import SingleWordPage from './pages/SingleWordPage';
+import NotFound from './pages/NotFound';
 import './App.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/word" element={<WordPage />} />
           <Route path="/word/:wordId" element={<SingleWordPage />} />
           <Route path="/notes" element={<NoteListPage />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </ChakraProvider>

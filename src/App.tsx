@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import WordPage from './pages/WordPage';
 import NoteListPage from './pages/NoteListPage';
 import SingleWordPage from './pages/SingleWordPage';
-import NotFound from './pages/NotFound';
+import NotFound from './pages/404';
 import './App.css'
 
 function App() {

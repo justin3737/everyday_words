@@ -1,10 +1,17 @@
 import { Box, Flex, Button, IconButton, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { GiHamburgerMenu } from 'react-icons/gi';
+import { useAuth } from '../../hooks/useAuth';
 
 function Header() {
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const goToHome = () => {
     navigate('/');
@@ -35,7 +42,7 @@ function Header() {
           />
         </Box>
         <Flex display={{ base: 'none', md: 'flex' }}>
-          <Button onClick={goToHome} mr={2}>登出</Button>
+          <Button onClick={handleLogout} mr={2}>登出</Button>
           <Button onClick={goToWordPage} mr={2}>每日單字</Button>
           <Button onClick={goToNoteList}>我的筆記</Button>
         </Flex>
@@ -46,7 +53,7 @@ function Header() {
         <DrawerContent>
           <DrawerCloseButton />
           <VStack spacing={4} mt={12}>
-            <Button onClick={goToHome} width="100%">登出</Button>
+            <Button onClick={handleLogout} width="100%">登出</Button>
             <Button onClick={goToWordPage} width="100%">每日單字</Button>
             <Button onClick={goToNoteList} width="100%">我的筆記</Button>
           </VStack>

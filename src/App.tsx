@@ -5,24 +5,21 @@ import WordPage from './pages/WordPage';
 import NoteListPage from './pages/NoteListPage';
 import SingleWordPage from './pages/SingleWordPage';
 import NotFound from './pages/404';
-import './App.css'
-import AuthInitializer from './components/AuthInitializer';
 import RegisterPage from './pages/RegisterPage';
+import './App.css'
 
 function App() {
   return (
     <ChakraProvider>
       <Router>
-        <AuthInitializer>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/word" element={<WordPage />} />
-            <Route path="/word/:wordId" element={<SingleWordPage />} />
-            <Route path="/notes" element={<NoteListPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthInitializer>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/word" element={<WordPage />} />
+          <Route path="/word/:wordId" element={<SingleWordPage />} />
+          <Route path="/notes" element={<NoteListPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Router>
     </ChakraProvider>
   );

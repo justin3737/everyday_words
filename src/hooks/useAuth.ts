@@ -15,8 +15,13 @@ export function useAuth() {
     }
   };
 
+  const logout = () => {
+    setToken(null);
+  };
+
   return {
     token,
     setToken,
+    logout,
   };
 } 

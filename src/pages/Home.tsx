@@ -25,6 +25,8 @@ function Home() {
       
       if (response.success && response.data?.token) {
         setToken(response.data.token);
+        setEmail('');
+        setPassword('');
         
         toast({
           title: '登入成功',

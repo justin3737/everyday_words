@@ -1,25 +1,41 @@
 import { Box } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchVocabulary, } from '../api/vocabularyApi';
 import { addNote } from '../api/noteApi';
 import Layout from '../components/common/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import WordPageContent from '../components/word/WordPageContent';
-import { useAsyncData } from '../hooks/useAsyncData';
 import { useAppToast } from '../hooks/useAppToast';
 import { useNavigate } from 'react-router-dom';
 import UnexpectedErrorCard from '../components/common/UnexpectedErrorCard';
+import { VocabularyItem } from '../types/vocabulary';
 
 function WordPage() {
   const navigate = useNavigate();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const appToast = useAppToast();
-  
-  const { data: words, loading, error } = useAsyncData({
-    fetchFn: fetchVocabulary,
-    errorMessage: '獲取單字資訊失敗'
-  });
+  const [words, setWords] = useState<VocabularyItem[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await fetchVocabulary();
+        setWords(result);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('獲取單字資訊失敗');
+        appToast.error('獲取單字資訊失敗');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (

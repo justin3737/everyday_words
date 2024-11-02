@@ -12,5 +12,6 @@ export interface VocabularyItem {
 }
 
 export interface VocabularyResponse {
-  content: VocabularyItem[];
+  success: boolean;
+  data: VocabularyItem[];
 }

@@ -7,22 +7,21 @@ import SingleWordPage from './pages/SingleWordPage';
 import NotFound from './pages/404';
 import './App.css'
 import AuthInitializer from './components/AuthInitializer';
-import Layout from './components/common/Layout';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
   return (
     <ChakraProvider>
       <Router>
         <AuthInitializer>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/word" element={<WordPage />} />
-              <Route path="/word/:wordId" element={<SingleWordPage />} />
-              <Route path="/notes" element={<NoteListPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/word" element={<WordPage />} />
+            <Route path="/word/:wordId" element={<SingleWordPage />} />
+            <Route path="/notes" element={<NoteListPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </AuthInitializer>
       </Router>
     </ChakraProvider>

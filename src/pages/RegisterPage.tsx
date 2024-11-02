@@ -1,50 +1,43 @@
 import { useState } from 'react';
-import { VStack, Image, Text, Input, Link, HStack, useToast } from '@chakra-ui/react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { VStack, Input, Text, useToast } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import MajorButton from '../components/common/MajorButton';
-import LoginButton from '../components/button/LoginButton';
-import { login } from '../api/authApi';
-import { useAuth } from '../hooks/useAuth';
+import { register } from '../api/authApi';
 
-function Home() {
+function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
-  const { setToken } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      const credentials = { email, password };
-      const response = await login(credentials);
-      
-      if (response.success && response.data?.token) {
-        setToken(response.data.token);
-        
+      const response = await register({ email, password, username });
+      if (response.success) {
         toast({
-          title: '登入成功',
+          title: response.message,
           status: 'success',
           duration: 2000,
         });
-        
-        navigate('/word');
+        // TODO: 可以選擇是否要自動登入
+        navigate('/word'); // 導回登入頁
       } else {
         toast({
-          title: response.message || '登入失敗',
+          title: response.message,
           status: 'error',
           duration: 2000,
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
       toast({
-        title: '登入失敗',
-        description: '請檢查網路連線後再試',
+        title: '註冊失敗',
+        description: '請稍後再試',
         status: 'error',
         duration: 2000,
       });
@@ -56,11 +49,10 @@ function Home() {
   return (
     <Layout showHeader={false}>
       <VStack spacing={8} justify="center">
-        <Image src="/logo.png" alt="App Icon" boxSize="150px" my={20}/>
-        <Text fontSize="2xl" fontWeight="bold">每日隨機單字</Text>
+        <Text fontSize="2xl" fontWeight="bold">註冊帳號</Text>
         <VStack as="form" spacing={4} width="300px" onSubmit={handleSubmit}>
           <Input
-            placeholder="帳號"
+            placeholder="帳號：example@example.com"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -73,29 +65,24 @@ function Home() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <Input
+            placeholder="使用者名稱"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
           <MajorButton 
             width="100%" 
             type="submit"
             isLoading={isLoading}
           >
-            登入
+            註冊
           </MajorButton>
         </VStack>
-        <HStack justifyContent="space-between" width="300px">
-          <LoginButton />
-          <Link
-            as={RouterLink}
-            to="/register"
-            color="blue.500"
-            fontSize="sm"
-            textDecoration="underline"
-          >
-            註冊新帳號
-          </Link>
-        </HStack>
       </VStack>
     </Layout>
   );
 }
 
-export default Home;
+export default Register; 

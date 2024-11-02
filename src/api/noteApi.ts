@@ -24,8 +24,8 @@ export const fetchNotes = async (): Promise<VocabularyItem[]> => {
     `${apiBaseUrl}/api/notes`,
     getAuthHeaders()
   );
-  if (response.data && Array.isArray(response.data.content)) {
-    return response.data.content;
+  if (response.data && response.data.success && Array.isArray(response.data.data)) {
+    return response.data.data;
   }
   throw new Error('無法獲取筆記');
 };

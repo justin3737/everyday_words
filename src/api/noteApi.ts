@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { VocabularyItem, VocabularyResponse } from '../types/vocabulary';
 import { getApiBaseUrl } from './utils';
+import { getAuthHeaders } from '../utils/auth';
 
 /* 新增筆記 */
 export const addNote = async (word: VocabularyItem): Promise<{ success: boolean; message: string }> => {
   const apiBaseUrl = getApiBaseUrl();
   try {
-    await axios.post(`${apiBaseUrl}/api/addNote`, word);
+    await axios.post(`${apiBaseUrl}/api/notes`, word, getAuthHeaders());
     return { success: true, message: '加入筆記成功' };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -19,7 +20,10 @@ export const addNote = async (word: VocabularyItem): Promise<{ success: boolean;
 /* 獲取筆記 */
 export const fetchNotes = async (): Promise<VocabularyItem[]> => {
   const apiBaseUrl = getApiBaseUrl();
-  const response = await axios.get<VocabularyResponse>(`${apiBaseUrl}/api/notes`);
+  const response = await axios.get<VocabularyResponse>(
+    `${apiBaseUrl}/api/notes`,
+    getAuthHeaders()
+  );
   if (response.data && Array.isArray(response.data.content)) {
     return response.data.content;
   }
@@ -30,7 +34,10 @@ export const fetchNotes = async (): Promise<VocabularyItem[]> => {
 export const deleteNote = async (word: string): Promise<{ success: boolean; message: string }> => {
   const apiBaseUrl = getApiBaseUrl();
   try {
-    await axios.delete(`${apiBaseUrl}/api/notes/${word}`);
+    await axios.delete(
+      `${apiBaseUrl}/api/notes/${word}`,
+      getAuthHeaders()
+    );
     return { success: true, message: '刪除筆記成功' };
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 444) {

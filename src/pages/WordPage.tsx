@@ -1,38 +1,38 @@
 import { Box } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
-import { useToast } from '@chakra-ui/react';
-import { VocabularyItem } from '../types/vocabulary';
+import { useState } from 'react';
 import { fetchVocabulary, } from '../api/vocabularyApi';
 import { addNote } from '../api/noteApi';
 import Layout from '../components/common/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import WordPageContent from '../components/word/WordPageContent';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { useAppToast } from '../hooks/useAppToast';
+import { useNavigate } from 'react-router-dom';
+import UnexpectedErrorCard from '../components/common/UnexpectedErrorCard';
 
 function WordPage() {
+  const navigate = useNavigate();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [words, setWords] = useState<VocabularyItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toast = useToast();
-
-  useEffect(() => {
-    const initializeWords = async () => {
-        try {
-          const data = await fetchVocabulary();
-          setWords(data);
-        } catch (error) {
-          console.error('Error fetching word data:', error);
-        }
-        setLoading(false);
-    };
-
-    initializeWords();
-  }, []);
+  const appToast = useAppToast();
+  
+  const { data: words, loading, error } = useAsyncData({
+    fetchFn: fetchVocabulary,
+    errorMessage: '獲取單字資訊失敗'
+  });
 
   if (loading) {
     return (
       <Layout>
         <LoadingSpinner />
+      </Layout>
+    );
+  }
+
+  if (!words || error) {
+    return (
+      <Layout>
+        <UnexpectedErrorCard onBack={() => navigate(-1)} />
       </Layout>
     );
   }
@@ -50,20 +50,14 @@ function WordPage() {
   const handleAddNote = async () => {
     try {
       const result = await addNote(currentWord);
-      toast({
-        title: result.message,
-        status: result.success ? 'success' : 'info',
-        duration: 3000,
-        isClosable: true,
-      });
+      if (result.success) {
+        appToast.success(result.message);
+      } else {
+        appToast.info(result.message);
+      }
     } catch (error) {
-      console.error('Error adding note:', error);
-      toast({
-        title: '加入筆記失敗',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      appToast.error('加入筆記失敗');
+      console.error(error);
     }
   };
 

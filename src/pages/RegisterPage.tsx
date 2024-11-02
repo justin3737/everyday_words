@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import MajorButton from '../components/common/MajorButton';
 import { register } from '../api/authApi';
+import axios from 'axios';
 
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
@@ -18,15 +19,14 @@ function Register() {
     setIsLoading(true);
 
     try {
-      const response = await register({ email, password, username });
+      const response = await register({ email, password, name });
       if (response.success) {
         toast({
           title: response.message,
           status: 'success',
           duration: 2000,
         });
-        // TODO: 可以選擇是否要自動登入
-        navigate('/word'); // 導回登入頁
+        navigate('/word');
       } else {
         toast({
           title: response.message,
@@ -35,12 +35,14 @@ function Register() {
         });
       }
     } catch (error) {
-      toast({
-        title: '註冊失敗',
-        description: '請稍後再試',
+      if (axios.isAxiosError(error)) {
+        toast({
+          title: '註冊失敗',
+          description: error.response?.data?.message || '請稍後再試',
         status: 'error',
-        duration: 2000,
-      });
+          duration: 2000,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -68,8 +70,8 @@ function Register() {
           <Input
             placeholder="使用者名稱"
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
           <MajorButton 

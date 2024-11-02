@@ -14,7 +14,7 @@ interface AuthResponse {
 interface RegisterData {
   email: string;
   password: string;
-  username: string;
+  name: string;
 }
 
 interface ApiResponse<T> {

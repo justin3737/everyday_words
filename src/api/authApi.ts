@@ -79,9 +79,3 @@ export const register = async (data: RegisterData): Promise<ApiResponse<AuthResp
     throw error;
   }
 };
-
-export const getAuthHeader = (token: string) => ({
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-});

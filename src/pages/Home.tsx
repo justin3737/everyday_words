@@ -7,6 +7,7 @@ import LoginButton from '../components/button/LoginButton';
 import { login } from '../api/authApi';
 import { useAuth } from '../hooks/useAuth';
 import { useMutation } from '@tanstack/react-query';
+import { ApiResponse } from '../api/apiUtils';
 
 function Home() {
   const [email, setEmail] = useState('');
@@ -15,7 +16,11 @@ function Home() {
   const navigate = useNavigate();
   const { setToken } = useAuth();
 
-  const loginMutation = useMutation({
+  const loginMutation = useMutation<
+    ApiResponse<{ token: string }>,
+    Error,
+    { email: string; password: string }
+  >({
     mutationFn: login,
     onSuccess: (response) => {
       if (response.success && response.data?.token) {

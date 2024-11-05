@@ -11,6 +11,7 @@ import PaginationNav from '../components/common/PaginationNav';
 import NoteItem from '../components/note/NoteItem';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNotes } from '../hooks/useNotes';
+import { ApiResponse } from '../api/apiUtils';
 
 function NoteListPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,10 +21,14 @@ function NoteListPage() {
   const queryClient = useQueryClient();
 
   // 使用 React Query 獲取筆記
-  const { data: notes = [], isLoading, error } = useNotes();
+  const { data:response, isLoading, error, isSuccess } = useNotes();
+  const notes = response?.data || [];
+
+  // 計算總頁數
+  const totalPages = Math.ceil(notes.length / itemsPerPage);
 
   // 使用 React Query 處理刪除筆記
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation<ApiResponse<unknown>, Error, string>({
     mutationFn: deleteNote,
     onSuccess: async (result) => {
       if (result.success) {
@@ -50,8 +55,9 @@ function NoteListPage() {
     }
   });
 
-  // 計算總頁數
-  const totalPages = Math.ceil(notes.length / itemsPerPage);
+  if (!isSuccess) {
+    return <LoadingSpinner />;
+  }
 
   // 獲取當前頁的筆記
   const getCurrentPageNotes = () => {

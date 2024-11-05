@@ -1,34 +1,22 @@
-import axios from 'axios';
+import { createApiRequest } from './apiUtils';
 import { VocabularyItem } from '../types/vocabulary';
-import { getApiBaseUrl } from './utils';
-import { getAuthHeaders } from '../utils/auth';
 
-/* 獲取隨機10個單字 */
+const api = createApiRequest(true);
+
 export const fetchVocabulary = async (): Promise<VocabularyItem[]> => {
-  const apiBaseUrl = getApiBaseUrl();
-  const response = await axios.get<VocabularyItem[]>(
-    `${apiBaseUrl}/api/vocabulary`,
-    getAuthHeaders()
-  );
-  if (response.data && Array.isArray(response.data)) {
-    return response.data;
-  } else {
-    console.error('Unexpected response format:', response.data);
-    return [];
-  }
+  return api.get('/api/vocabulary', {
+    errorMessages: {
+      401: '請先登入',
+      default: '獲取單字列表失敗'
+    }
+  });
 };
 
-/* 獲取1個單字 */
 export const fetchVocabularyByWord = async (word: string): Promise<VocabularyItem> => {
-    const apiBaseUrl = getApiBaseUrl();
-    const response = await axios.get<VocabularyItem>(
-      `${apiBaseUrl}/api/vocabulary/${word}`,
-      getAuthHeaders()
-    );
-    if (response.data) {
-      return response.data;
-    } else {
-      console.error('Unexpected response format:', response.data);
-      return {} as VocabularyItem; // 返回空的 VocabularyItem 物件
+  return api.get(`/api/vocabulary/${word}`, {
+    errorMessages: {
+      404: '找不到此單字',
+      default: '獲取單字資訊失敗'
     }
-  };
+  });
+};

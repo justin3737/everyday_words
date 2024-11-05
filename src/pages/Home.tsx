@@ -6,23 +6,18 @@ import MajorButton from '../components/common/MajorButton';
 import LoginButton from '../components/button/LoginButton';
 import { login } from '../api/authApi';
 import { useAuth } from '../hooks/useAuth';
+import { useMutation } from '@tanstack/react-query';
 
 function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { setToken } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const credentials = { email, password };
-      const response = await login(credentials);
-      
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (response) => {
       if (response.success && response.data?.token) {
         setToken(response.data.token);
         setEmail('');
@@ -42,7 +37,8 @@ function Home() {
           duration: 2000,
         });
       }
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Login error:', error);
       toast({
         title: '登入失敗',
@@ -50,9 +46,12 @@ function Home() {
         status: 'error',
         duration: 2000,
       });
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
   };
 
   return (
@@ -78,7 +77,7 @@ function Home() {
           <MajorButton 
             width="100%" 
             type="submit"
-            isLoading={isLoading}
+            isLoading={loginMutation.isPending}
           >
             登入
           </MajorButton>

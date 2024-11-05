@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { VStack, Text, useToast } from '@chakra-ui/react';
 import { speakText } from '../utils/speechUtils';
-import { NoteList } from '../types/note';
-import { deleteNote, fetchNotes } from '../api/noteApi';
+import { deleteNote }from '../api/noteApi';
 import { useNavigate } from 'react-router-dom';
 import { VocabularyItem } from '../types/vocabulary';
 import Layout from '../components/common/Layout';
@@ -10,35 +9,46 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import PaginationNav from '../components/common/PaginationNav';
 import NoteItem from '../components/note/NoteItem';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNotes } from '../hooks/useNotes';
 
 function NoteListPage() {
-  const [notes, setNotes] = useState<NoteList>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchNotesData = async () => {
-      try {
-        const response = await fetchNotes();
-        if (Array.isArray(response)) {
-            setNotes(response as NoteList);
-        } else {
-          throw new Error('Invalid data format received from API');
-        }
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching notes:', err);
-        setError('Failed to fetch notes');
-        setLoading(false);
+  // 使用 React Query 獲取筆記
+  const { data: notes = [], isLoading, error } = useNotes();
+
+  // 使用 React Query 處理刪除筆記
+  const deleteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: async (result) => {
+      if (result.success) {
+        // 重新獲取筆記列表
+        await queryClient.invalidateQueries({ queryKey: ['notes'] });
+        toast({
+          title: '成功',
+          description: result.message,
+          status: 'success',
+          duration: 3000,
+          isClosable: true
+        });
       }
-    };
-
-    fetchNotesData();
-  }, []);
+    },
+    onError: (err) => {
+      console.error('Error deleting note:', err);
+      toast({
+        title: '錯誤',
+        description: '刪除筆記時發生錯誤',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      });
+    }
+  });
 
   // 計算總頁數
   const totalPages = Math.ceil(notes.length / itemsPerPage);
@@ -55,7 +65,7 @@ function NoteListPage() {
     setCurrentPage(newPage);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <LoadingSpinner />
@@ -66,7 +76,7 @@ function NoteListPage() {
   if (error) {
     return (
       <Layout>
-        <ErrorMessage message={error} />
+        <ErrorMessage message={(error as Error).message} />
       </Layout>
     );
   }
@@ -79,41 +89,8 @@ function NoteListPage() {
     navigate('/word/' + encodeURIComponent(word.word), { state: { word } });
   };
 
-  const handleDeleteNote = async (word: string) => {
-    try {
-      const result = await deleteNote(word);
-      if (result.success) {
-        // 重新獲取筆記列表
-        const response = await fetchNotes();
-        if (Array.isArray(response)) {
-          setNotes(response as NoteList);
-        }
-        toast({
-          title: '成功',
-          description: result.message,
-          status: 'success',
-          duration: 3000,
-          isClosable: true
-        });
-      } else {
-        toast({
-          title: '失敗',
-          description: result.message,
-          status: 'error',
-          duration: 3000,
-          isClosable: true
-        });
-      }
-    } catch (err) {
-      console.error('Error deleting note:', err);
-      toast({
-        title: '錯誤',
-        description: '刪除筆記時發生錯誤',
-        status: 'error',
-        duration: 3000,
-        isClosable: true
-      });
-    }
+  const handleDeleteNote = (word: string) => {
+    deleteMutation.mutate(word);
   };
 
   return (

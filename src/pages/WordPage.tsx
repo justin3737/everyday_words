@@ -1,6 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
-import { fetchVocabulary, } from '../api/vocabularyApi';
+import { useState } from 'react';
 import { addNote } from '../api/noteApi';
 import Layout from '../components/common/Layout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -9,35 +8,31 @@ import WordPageContent from '../components/word/WordPageContent';
 import { useAppToast } from '../hooks/useAppToast';
 import { useNavigate } from 'react-router-dom';
 import UnexpectedErrorCard from '../components/common/UnexpectedErrorCard';
-import { VocabularyItem } from '../types/vocabulary';
+import { useMutation } from '@tanstack/react-query';
+import { useVocabularyList } from '../hooks/useVocabulary';
 
 function WordPage() {
   const navigate = useNavigate();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const appToast = useAppToast();
-  const [words, setWords] = useState<VocabularyItem[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await fetchVocabulary();
-        setWords(result);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('獲取單字資訊失敗');
-        appToast.error('獲取單字資訊失敗');
-      } finally {
-        setLoading(false);
+  const { data: words, isLoading, error } = useVocabularyList();
+
+  const addNoteMutation = useMutation({
+    mutationFn: addNote,
+    onSuccess: (result) => {
+      if (result.success) {
+        appToast.success(result.message);
+      } else {
+        appToast.info(result.message);
       }
-    };
+    },
+    onError: () => {
+      appToast.error('加入筆記失敗');
+    },
+  });
 
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <LoadingSpinner />
@@ -63,18 +58,8 @@ function WordPage() {
 
   const currentWord = words[currentWordIndex];
 
-  const handleAddNote = async () => {
-    try {
-      const result = await addNote(currentWord);
-      if (result.success) {
-        appToast.success(result.message);
-      } else {
-        appToast.info(result.message);
-      }
-    } catch (error) {
-      appToast.error('加入筆記失敗');
-      console.error(error);
-    }
+  const handleAddNote = () => {
+    addNoteMutation.mutate(currentWord);
   };
 
   const handlePageChange = (newPage: number) => {

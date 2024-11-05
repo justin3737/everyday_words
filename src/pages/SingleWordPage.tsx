@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button, useToast } from '@chakra-ui/react';
-import { VocabularyItem } from '../types/vocabulary';
-import { fetchVocabularyByWord } from '../api/vocabularyApi';
+import { useMutation } from '@tanstack/react-query';
 import { addNote } from '../api/noteApi';
 import Layout from '../components/common/Layout';
-
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import WordPageContent from '../components/word/WordPageContent';
+import { useVocabularyItem } from '../hooks/useVocabulary';
 
 /**
  * SingleWordPage 組件
@@ -20,67 +18,45 @@ import WordPageContent from '../components/word/WordPageContent';
 function SingleWordPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [word, setWord] = useState<VocabularyItem | null>(null);
-  const [loading, setLoading] = useState(true);
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchWord = async () => {
-      try {
-        const getWordFromUrl = () => {
-          const wordFromPath = decodeURIComponent(window.location.pathname.split('/word/')[1]);
-          const wordData = location.state?.word;
-          return wordData?.word || wordFromPath || '';
-        };
+  // 從 URL 獲取單詞的邏輯
+  const getWordFromUrl = () => {
+    const wordFromPath = decodeURIComponent(window.location.pathname.split('/word/')[1]);
+    const wordData = location.state?.word;
+    return wordData?.word || wordFromPath || '';
+  };
 
-        const searchWord = getWordFromUrl();
-        
-        if (!searchWord) {
-          setLoading(false);
-          return;
-        }
-        
-        const result = await fetchVocabularyByWord(searchWord);
-        console.log(result);
-        setWord(result);
-      } catch (error) {
-        console.error('Error fetching word:', error);
-        toast({
-          title: '獲取單字資訊失敗',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 使用 React Query 獲取單詞數據
+  const { data: word, isLoading, error } = useVocabularyItem(getWordFromUrl());
 
-    fetchWord();
-  }, [location.state, toast]);
-
-  const handleAddNote = async () => {
-    if (!word) return;
-    try {
-      const result = await addNote(word);
+  // 使用 React Query 處理添加筆記的邏輯
+  const addNoteMutation = useMutation({
+    mutationFn: addNote,
+    onSuccess: (result) => {
       toast({
         title: result.message,
         status: result.success ? 'success' : 'info',
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      console.error('Error adding note:', error);
+    },
+    onError: () => {
       toast({
         title: '加入筆記失敗',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
-    }
+    },
+  });
+
+  const handleAddNote = () => {
+    if (!word) return;
+    addNoteMutation.mutate(word);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <LoadingSpinner />
@@ -88,7 +64,7 @@ function SingleWordPage() {
     );
   }
 
-  if (!word) {
+  if (error || !word) {
     return (
       <Layout>
         <ErrorMessage message="No word data available." />

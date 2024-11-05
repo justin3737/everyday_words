@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { VStack, Input, Text, useToast } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import Layout from '../components/common/Layout';
 import MajorButton from '../components/common/MajorButton';
 import { register } from '../api/authApi';
@@ -10,16 +11,12 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const response = await register({ email, password, name });
+  const mutation = useMutation({
+    mutationFn: register,
+    onSuccess: (response) => {
       if (response.success) {
         toast({
           title: response.message,
@@ -34,18 +31,22 @@ function Register() {
           duration: 2000,
         });
       }
-    } catch (error) {
+    },
+    onError: (error) => {
       if (axios.isAxiosError(error)) {
         toast({
           title: '註冊失敗',
           description: error.response?.data?.message || '請稍後再試',
-        status: 'error',
+          status: 'error',
           duration: 2000,
         });
       }
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate({ email, password, name });
   };
 
   return (
@@ -77,7 +78,7 @@ function Register() {
           <MajorButton 
             width="100%" 
             type="submit"
-            isLoading={isLoading}
+            isLoading={mutation.isPending}
           >
             註冊
           </MajorButton>
